@@ -1,0 +1,12 @@
+{
+  "model": "llama3-8b",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Hola, me llamo Juan y me gustan los gatos."
+    }
+  ],
+  "session_id": "test-session-123",
+  "use_context": true,
+  "stream": false
+}

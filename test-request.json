@@ -1,0 +1,10 @@
+{
+  "model": "llama3-8b",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Hola, esto es una prueba del servidor"
+    }
+  ],
+  "stream": false
+}

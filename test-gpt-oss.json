@@ -1,0 +1,10 @@
+{
+  "model": "openai/gpt-oss-120b",
+  "messages": [
+    {
+      "role": "user",
+      "content": "que fue lo ultimo que te dige"
+    }
+  ],
+  "stream": false
+}

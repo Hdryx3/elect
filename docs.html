@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Elect - AI Load Balancer Gateway</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Prism.js for Syntax Highlighting -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg-primary: #09090b;
+        --bg-secondary: #18181b;
+        --text-primary: #f4f4f5;
+        --text-secondary: #a1a1aa;
+        --accent: #8b5cf6;
+        --accent-hover: #7c3aed;
+        --border: #27272a;
+        --api-method-get: #3b82f6;
+        --api-method-post: #22c55e;
+        --api-method-delete: #ef4444;
+        --code-block-bg: #1e1e2d;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        scroll-behavior: smooth;
+      }
+
+      body {
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        font-family: "Inter", sans-serif;
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+
+      /* Layout */
+      .wrapper {
+        display: flex;
+        min-height: 100vh;
+      }
+
+      .sidebar {
+        width: 280px;
+        background: var(--bg-secondary);
+        border-right: 1px solid var(--border);
+        padding: 2rem 1.5rem;
+        position: fixed;
+        height: 100vh;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+      }
+
+      .main-content {
+        margin-left: 280px;
+        padding: 3rem 4rem;
+        flex: 1;
+        max-width: 1200px;
+      }
+
+      /* Typography */
+      h1,
+      h2,
+      h3 {
+        color: var(--text-primary);
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+      }
+      h2 {
+        font-size: 1.8rem;
+        margin-top: 3rem;
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 0.5rem;
+      }
+      h3 {
+        font-size: 1.4rem;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        color: var(--text-primary);
+      }
+      p {
+        color: var(--text-secondary);
+        margin-bottom: 1rem;
+        font-size: 1.05rem;
+      }
+
+      /* Components */
+      .logo {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+      }
+      .logo span {
+        color: var(--accent);
+      }
+
+      .nav-link {
+        display: block;
+        padding: 0.5rem 0;
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: color 0.2s;
+        font-size: 0.95rem;
+      }
+      .nav-link:hover,
+      .nav-link.active {
+        color: var(--accent);
+        font-weight: 600;
+      }
+
+      .card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .endpoint-badge {
+        display: inline-block;
+        font-family: "JetBrains Mono", monospace;
+        padding: 0.4rem 0.8rem;
+        border-radius: 6px;
+        background: #27272a;
+        color: #e4e4e7;
+        font-size: 0.9rem;
+        border: 1px solid var(--border);
+      }
+
+      .method {
+        font-weight: 800;
+        text-transform: uppercase;
+        margin-right: 0.5rem;
+      }
+      .method.POST {
+        color: var(--api-method-post);
+      }
+      .method.GET {
+        color: var(--api-method-get);
+      }
+      .method.DELETE {
+        color: var(--api-method-delete);
+      }
+
+      /* Code Blocks */
+      pre {
+        background: var(--code-block-bg);
+        padding: 1.5rem;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 1.5rem 0;
+        border: 1px solid var(--border);
+      }
+      code {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.9rem;
+        color: #a5b4fc;
+      }
+      p code {
+        background: #27272a;
+        padding: 0.2rem 0.4rem;
+        border-radius: 4px;
+        color: #e4e4e7;
+        font-size: 0.85rem;
+      }
+
+      /* Code Blocks Override for Prism */
+      pre[class*="language-"] {
+        background: var(--code-block-bg) !important;
+        border: 1px solid var(--border);
+        margin: 1.5rem 0;
+        border-radius: 8px;
+        text-shadow: none !important;
+      }
+      code[class*="language-"],
+      pre[class*="language-"] {
+        font-family: "JetBrains Mono", monospace !important;
+        font-size: 0.9rem !important;
+      }
+
+      /* Tables */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1.5rem 0;
+        font-size: 0.95rem;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 1rem;
+        border-bottom: 1px solid var(--border);
+      }
+      th {
+        color: var(--text-primary);
+        font-weight: 600;
+        background: #202022;
+      }
+      td {
+        color: var(--text-secondary);
+        background: #18181b;
+      }
+
+      .badge-req {
+        color: #f87171;
+        background: rgba(248, 113, 113, 0.1);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        border: 1px solid rgba(248, 113, 113, 0.2);
+      }
+      .badge-opt {
+        color: #4ade80;
+        background: rgba(74, 222, 128, 0.1);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        border: 1px solid rgba(74, 222, 128, 0.2);
+      }
+
+      /* Feature Grid */
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+      }
+      .feature-item h3 {
+        margin-top: 0;
+        font-size: 1.2rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <!-- Sidebar Navigation -->
+      <nav class="sidebar">
+        <a href="#" class="logo">⚡ Elect <span>Gateway</span></a>
+        <div>
+          <p
+            style="
+              font-size: 0.8rem;
+              text-transform: uppercase;
+              letter-spacing: 0.05em;
+              margin-bottom: 0.5rem;
+              font-weight: 700;
+            "
+          >
+            Introducción
+          </p>
+          <a href="#overview" class="nav-link">Visión General</a>
+          <a href="#architecture" class="nav-link">Arquitectura Interna</a>
+          <a href="#models" class="nav-link">Modelos Soportados</a>
+        </div>
+        <div>
+          <p
+            style="
+              font-size: 0.8rem;
+              text-transform: uppercase;
+              letter-spacing: 0.05em;
+              margin-bottom: 0.5rem;
+              font-weight: 700;
+            "
+          >
+            Endpoints
+          </p>
+          <a href="#chat" class="nav-link">Chat Completions</a>
+          <a href="#sessions" class="nav-link">Gestión de Estado</a>
+        </div>
+        <div>
+          <p
+            style="
+              font-size: 0.8rem;
+              text-transform: uppercase;
+              letter-spacing: 0.05em;
+              margin-bottom: 0.5rem;
+              font-weight: 700;
+            "
+          >
+            Guía Avanzada
+          </p>
+          <a href="#configuration" class="nav-link">Configuración Custom</a>
+          <a href="#errors" class="nav-link">Manejo de Errores</a>
+        </div>
+      </nav>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Overview -->
+        <section id="overview">
+          <h1>Elect AI Gateway</h1>
+          <p
+            class="lead"
+            style="
+              font-size: 1.2rem;
+              color: var(--text-secondary);
+              max-width: 800px;
+            "
+          >
+            Un middleware inteligente diseñado para agregar múltiples capas
+            gratuitas de LLMs (Groq, Cerebras, etc.) en una sola API unificada.
+            Obtén, en teoría,
+            <strong>capacidad infinita y sin interrupciones</strong> combinando
+            múltiples proveedores.
+          </p>
+
+          <div class="grid">
+            <div class="card feature-item">
+              <h3>🔄 Failover Automático</h3>
+              <p>
+                Si un proveedor alcanza su límite (Rate Limit 429) o se cae,
+                Elect salta instantáneamente al siguiente en la lista sin cortar
+                la conexión.
+              </p>
+            </div>
+            <div class="card feature-item">
+              <h3>🧠 Memoria Gestionada</h3>
+              <p>
+                Olvídate de enviar todo el historial de chat en cada petición.
+                Elect maneja el estado de la conversación (Session ID) por ti
+                eficientemente.
+              </p>
+            </div>
+            <div class="card feature-item">
+              <h3>⚡ Rendimiento Extremo</h3>
+              <p>
+                Construido sobre <strong>Bun</strong>, optimizado para alto
+                throughput y baja latencia en el routing de peticiones.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Architecture -->
+        <section id="architecture">
+          <h2>Arquitectura Interna</h2>
+          <p>
+            El sistema utiliza un sistema de enrutamiento avanzado compuesto por
+            tres capas de lógica:
+          </p>
+
+          <div class="card">
+            <h3 style="margin-top: 0">1. Circuit Breaker</h3>
+            <p>
+              Monitorea activamente la salud de cada proveedor. Si Groq devuelve
+              un error de quota (429), se marca en <strong>cooldown</strong> por
+              5 minutos y se evita su uso automáticamente.
+            </p>
+
+            <h3>2. Round-Robin & Prioridad</h3>
+            <p>
+              Las peticiones se distribuyen equitativamente entre los
+              proveedores disponibles para maximizar el uso de los planes
+              gratuitos paralelos.
+            </p>
+
+            <h3>3. Tier Aggregation</h3>
+            <p>
+              Puedes registrar la misma API (p.ej. Groq) múltiples veces con
+              diferentes API Keys. Elect las tratará como un pool gigante de
+              recursos.
+            </p>
+          </div>
+        </section>
+
+        <!-- Models -->
+        <section id="models">
+          <h2>Modelos Soportados por Defecto</h2>
+          <p>
+            Elect viene preconfigurado con las rutas más eficientes para los
+            modelos Open Source líderes.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 30%">Model ID</th>
+                <th>Proveedores de Respaldo (Rutas)</th>
+                <th>Ventaja</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>llama3-70b</code></td>
+                <td>Groq ➔ Cerebras</td>
+                <td>Alta inteligencia, velocidad extrema (LPU).</td>
+              </tr>
+              <tr>
+                <td><code>llama3-8b</code></td>
+                <td>Groq ➔ Cerebras</td>
+                <td>Respuesta instantánea, ideal para chat simple.</td>
+              </tr>
+              <tr>
+                <td><code>openai/gpt-oss-120b</code></td>
+                <td>Groq ➔ Cerebras</td>
+                <td>Modelo experimental de alta capacidad.</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- Chat Endpoint -->
+        <section id="chat">
+          <h2>Chat Completions</h2>
+          <div class="endpoint-badge">
+            <span class="method POST">POST</span> /v1/chat/completions
+          </div>
+
+          <p>
+            Endpoint principal compatible con OpenAI. Acepta parámetros estándar
+            y extensiones propietarias para control granular.
+          </p>
+
+          <h3>Cuerpo de la Petición (JSON)</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Parámetro</th>
+                <th>Tipo</th>
+                <th>Descripción</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>model</code> <span class="badge-req">REQ</span></td>
+                <td>string</td>
+                <td>ID del modelo (ej: <code>llama3-70b</code>).</td>
+              </tr>
+              <tr>
+                <td>
+                  <code>messages</code> <span class="badge-req">REQ</span>
+                </td>
+                <td>array</td>
+                <td>
+                  Lista de mensajes. Roles soportados: <code>system</code>,
+                  <code>user</code>, <code>assistant</code>.
+                </td>
+              </tr>
+              <tr>
+                <td><code>stream</code> <span class="badge-opt">OPT</span></td>
+                <td>boolean</td>
+                <td>
+                  Activar streaming SSE (Server-Sent Events). Default:
+                  <code>false</code>.
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <code>session_id</code> <span class="badge-opt">OPT</span>
+                </td>
+                <td>string</td>
+                <td>
+                  ID de sesión persistente. Si se omite y usas
+                  <code>use_context: true</code>, se genera uno nuevo.
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <code>use_context</code> <span class="badge-opt">OPT</span>
+                </td>
+                <td>boolean</td>
+                <td>
+                  Si es <code>true</code>, el servidor inyecta la memoria de la
+                  sesión automáticamente.
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <code>custom_providers</code>
+                  <span class="badge-opt">OPT</span>
+                </td>
+                <td>object</td>
+                <td>
+                  Inyecta credenciales/proveedores temporales solo para esta
+                  petición (útil para pruebas).
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Ejemplo (cURL)</h3>
+          <pre><code class="language-bash">curl -X POST http://localhost:3000/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "llama3-70b",
+    "use_context": true,
+    "messages": [
+      { "role": "system", "content": "Eres un físico experto y sarcástico." },
+      { "role": "user", "content": "Explícame la teoría de la relatividad." }
+    ]
+  }'</code></pre>
+
+          <h3>Respuesta Exitosa</h3>
+          <p>
+            Devuelve un objeto estándar de chat completion, pero incluye headers
+            extra de depuración.
+          </p>
+          <pre><code class="language-json">{
+  "id": "chatcmpl-123",
+  "choices": [{
+    "message": { "role": "assistant", "content": "..." }
+  }],
+  // Headers importantes en la respuesta HTTP:
+  // X-Provider-Used: "groq" (te dice quién respondió realmente)
+  // X-Session-ID: "session_123456" (para seguir la conversación)
+}</code></pre>
+        </section>
+
+        <!-- Sessions -->
+        <section id="sessions">
+          <h2>Gestión de Estado (Memoria)</h2>
+          <p>
+            Elect permite mantener el contexto de la conversación
+            automáticamente. Aquí tienes todos los ejemplos para gestionar
+            sesiones.
+          </p>
+
+          <div class="card">
+            <h3>🔄 Flujo Completo de Conversación</h3>
+            <p>
+              Cómo tener una conversación continua sin enviar todo el historial
+              cada vez.
+            </p>
+
+            <h4>Paso 1: Iniciar Conversación</h4>
+            <p>
+              Envía <code>use_context: true</code> en tu primera petición. El
+              servidor creará una sesión y te devolverá su ID en el header
+              <code>X-Session-ID</code>.
+            </p>
+            <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 1rem">
+              <div>
+                <p><strong>Request:</strong></p>
+                <pre><code class="language-json">POST /v1/chat/completions
+{
+  "model": "llama3-70b",
+  "use_context": true,
+  "messages": [
+    { "role": "user", "content": "Hola, me llamo Juan" }
+  ]
+}</code></pre>
+              </div>
+              <div>
+                <p><strong>Response Headers:</strong></p>
+                <pre><code class="language-http">HTTP/1.1 200 OK
+Content-Type: application/json
+X-Session-ID: session_1735512345_abc12</code></pre>
+              </div>
+            </div>
+
+            <h4>Paso 2: Continuar Conversación</h4>
+            <p>
+              Usa el <code>session_id</code> recibido en las siguientes
+              peticiones. Ya NO necesitas enviar el mensaje anterior ("Hola, me
+              llamo Juan"), el servidor lo recuerda.
+            </p>
+            <pre><code class="language-json">POST /v1/chat/completions
+{
+  "model": "llama3-70b",
+  "session_id": "session_1735512345_abc12", 
+  "use_context": true,
+  "messages": [
+    { "role": "user", "content": "¿Cómo me llamo?" } 
+  ]
+}
+// Respuesta: "Te llamas Juan."</code></pre>
+          </div>
+
+          <div class="card">
+            <h3>📋 Listar Sesiones Activas</h3>
+            <div class="endpoint-badge">
+              <span class="method GET">GET</span> /v1/sessions
+            </div>
+            <p>
+              Obtiene todas las sesiones en memoria y estadísticas globales.
+            </p>
+
+            <pre><code class="language-json">// GET /v1/sessions
+
+{
+  "totalSessions": 5,
+  "totalMessages": 24,
+  "sessions": [
+    {
+      "id": "session_1735512345_abc12",
+      "message_count": 4,
+      "created_at": "2025-12-30T10:00:00.000Z",
+      "last_used": "2025-12-30T10:05:00.000Z"
+    }
+  ]
+}</code></pre>
+          </div>
+
+          <div class="card">
+            <h3>🔍 Inspeccionar Sesión</h3>
+            <div class="endpoint-badge">
+              <span class="method GET">GET</span> /v1/sessions/:id
+            </div>
+            <p>
+              Ver el historial completo de mensajes de una sesión específica.
+            </p>
+
+            <pre><code class="language-json">// GET /v1/sessions/session_1735512345_abc12
+
+{
+  "session_id": "session_1735512345_abc12",
+  "message_count": 2,
+  "messages": [
+    { "role": "user", "content": "Hola, me llamo Juan" },
+    { "role": "assistant", "content": "¡Hola Juan! ¿En qué puedo ayudarte hoy?" }
+  ]
+}</code></pre>
+          </div>
+
+          <div class="card">
+            <h3>🗑️ Eliminar Sesión</h3>
+            <div class="endpoint-badge">
+              <span class="method DELETE">DELETE</span> /v1/sessions/:id
+            </div>
+            <p>Borra manualmente una sesión para liberar memoria.</p>
+
+            <pre><code class="language-json">// DELETE /v1/sessions/session_1735512345_abc12
+
+{
+  "success": true,
+  "message": "Sesión eliminada correctamente",
+  "session_id": "session_1735512345_abc12"
+}</code></pre>
+          </div>
+        </section>
+
+        <!-- Configuration -->
+        <section id="configuration">
+          <h2>Configuración Avanzada</h2>
+          <h3>Inyección de Proveedores (Client-Side)</h3>
+          <p>
+            Puedes definir tus propios proveedores "al vuelo" dentro del body de
+            la petición usando <code>custom_providers</code>. Esto es útil si
+            tienes claves privadas que no quieres guardar en el servidor.
+          </p>
+
+          <pre><code class="language-json">{
+  "model": "mi-modelo-privado",
+  "custom_providers": {
+    "mi-server-casero": {
+      "name": "Local LLM",
+      "url": "http://192.168.1.50:11434/api/chat",
+      "key": "ollama"
+    }
+  },
+  "messages": [...]
+}</code></pre>
+        </section>
+
+        <footer
+          style="
+            margin-top: 5rem;
+            border-top: 1px solid var(--border);
+            padding-top: 2rem;
+            color: var(--text-secondary);
+            text-align: center;
+          "
+        >
+          <p>
+            Elect AI Gateway &copy; 2025. Documentación generada
+            automáticamente.
+          </p>
+        </footer>
+      </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+  </body>
+</html>
